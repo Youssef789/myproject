@@ -13,7 +13,7 @@ import model.Studente;
 public class CorsoProxy extends Corso{
 	private DataSource dataSource;
 	
-	public CorsoProxy() {
+	public CorsoProxy(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 	
