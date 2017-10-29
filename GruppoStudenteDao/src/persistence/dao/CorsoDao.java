@@ -7,7 +7,7 @@ import model.Corso;
 
 public interface CorsoDao {
 	public void save(Corso corso);  // Create
-	public Corso findByPrimaryKey(long codice);     // Retrieve
+	public Corso findByPrimaryKey(Long codice);     // Retrieve
 	public List<Corso> findAll();       
 	public void update(Corso corso); //Update
 	public void delete(Corso corso); //Delete	

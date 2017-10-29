@@ -62,8 +62,6 @@ public abstract class DAOFactory {
 	
 	public abstract DipartimentoDao getDipartimentoDAO();
 	
-	
-
 	public abstract persistence.UtilDao getUtilDAO();
 
 }

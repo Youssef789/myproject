@@ -6,23 +6,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+
 import model.Indirizzo;
 import persistence.dao.IndirizzoDao;
 
 
-public class IndirizzioDaoJDBC implements IndirizzoDao {
+public class IndirizzoDaoJDBC implements IndirizzoDao {
 	private DataSource dataSource;
 
-	public IndirizzioDaoJDBC(DataSource dataSource) {
+	public IndirizzoDaoJDBC(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-
+	
+	@Override
 	public void save(Indirizzo indirizzo) {
 		Connection connection = this.dataSource.getConnection();
 		try {
+			Long id = IdBroker.getId(connection);
+			indirizzo.setCodice(id);
 			String insert = "insert into indirizzo(codice, nome) values (?,?)";
 			PreparedStatement statement = connection.prepareStatement(insert);
-			statement.setLong(1, (long)indirizzo.getCodice());
+			statement.setLong(1, indirizzo.getCodice());
 			statement.setString(2, indirizzo.getNome());
 			statement.executeUpdate();
 		} catch (SQLException e) {
@@ -37,19 +41,25 @@ public class IndirizzioDaoJDBC implements IndirizzoDao {
 	}
 
 	@Override
-	public Indirizzo findByPrimaryKey(long codice) {
+	public Indirizzo findByPrimaryKey(Long codice) {
 		Connection connection = this.dataSource.getConnection();
 		Indirizzo indirizzo = null;
 		try {
 			PreparedStatement statement;
-			String query = "select * from indirizzo where codice = ?";
+			String query = "select i.codice as i_codice, i.nome as i_nome "
+					+ "from indirizzo i  "
+					+ "where i.codice = ?";
 			statement = connection.prepareStatement(query);
 			statement.setLong(1, codice);
 			ResultSet result = statement.executeQuery();
-			if (result.next()) {
-				indirizzo = new Indirizzo();
-				indirizzo.setCodice(result.getLong(1));				
-				indirizzo.setNome(result.getString("nome"));
+			boolean primaRiga = true;
+			while (result.next()) {
+				if (primaRiga) {
+					indirizzo = new Indirizzo();
+					indirizzo.setCodice(result.getLong("i_codice"));				
+					indirizzo.setNome(result.getString("i_nome"));
+					primaRiga = false;
+				}
 			}
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -75,9 +85,8 @@ public class IndirizzioDaoJDBC implements IndirizzoDao {
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
 				indirizzo = new Indirizzo();
-				indirizzo.setCodice(result.getLong(1));			
+				indirizzo.setCodice(result.getLong("codice"));				
 				indirizzo.setNome(result.getString("nome"));
-				indirizzi.add(indirizzo);
 			}
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -91,14 +100,13 @@ public class IndirizzioDaoJDBC implements IndirizzoDao {
 		return indirizzi;
 	}
 
-	@Override
 	public void update(Indirizzo indirizzo) {
 		Connection connection = this.dataSource.getConnection();
 		try {
-			String update = "update indirizzio SET codice = ?, nome = ? WHERE codice = ?";
+			String update = "update indirizzo SET nome = ? WHERE codice=?";
 			PreparedStatement statement = connection.prepareStatement(update);
-			statement.setLong(1, indirizzo.getCodice());
-			statement.setString(2, indirizzo.getNome());
+			statement.setString(1, indirizzo.getNome());
+			statement.setLong(2, indirizzo.getCodice());
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			throw new PersistenceException(e.getMessage());
@@ -109,10 +117,8 @@ public class IndirizzioDaoJDBC implements IndirizzoDao {
 				throw new PersistenceException(e.getMessage());
 			}
 		}
-		
 	}
 
-	@Override
 	public void delete(Indirizzo indirizzo) {
 		Connection connection = this.dataSource.getConnection();
 		try {

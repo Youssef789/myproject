@@ -45,6 +45,13 @@ public class CorsoDiLaurea {
 	public void setDipartimento(Dipartimento dipartimento) {
 		this.dipartimento = dipartimento;
 	}
+	public void addCorso(Corso corso) {
+		if(corsi == null)
+		{
+			corsi=new HashSet<Corso>();
+		}
+		corsi.add(corso);
+	}
 	
 	
 }

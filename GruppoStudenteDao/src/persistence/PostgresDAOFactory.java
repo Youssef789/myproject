@@ -22,7 +22,9 @@ class PostgresDAOFactory extends DAOFactory {
 		try {
 			Class.forName("org.postgresql.Driver").newInstance();
 			//questi vanno messi in file di configurazione!!!	
-			dataSource=new DataSource("jdbc:postgresql://127.0.0.1:5432/","postgres","postgres");
+			//dataSource=new DataSource("jdbc:postgresql://127.0.0.1:5432/","postgres","postgres");
+			dataSource=new DataSource("jdbc:postgresql://localhost:5432/Segreteria","postgres","postgres");
+
 		} 
 		catch (Exception e) {
 			System.err.println("PostgresDAOFactory.class: failed to load MySQL JDBC driver\n"+e);
@@ -54,7 +56,7 @@ class PostgresDAOFactory extends DAOFactory {
 
 	@Override
 	public IndirizzoDao getIndirizzoDAO() {
-		return new IndirizzioDaoJDBC(dataSource);
+		return new IndirizzoDaoJDBC(dataSource);
 	}
 
 	@Override
