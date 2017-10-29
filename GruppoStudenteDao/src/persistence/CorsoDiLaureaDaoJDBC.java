@@ -23,36 +23,37 @@ public class CorsoDiLaureaDaoJDBC implements CorsoDiLaureaDao{
 	}
 	
 	@Override
-	public void save(CorsoDiLaurea corsodiLaurea) {
-		if(corsodiLaurea.getCorsi()==null || corsodiLaurea.getCorsi().isEmpty())
-		{
+	public void save(CorsoDiLaurea corsoDiLaurea) {
+		if ( (corsoDiLaurea.getCorsi() == null) 
+				|| corsoDiLaurea.getCorsi().isEmpty()){
 			throw new PersistenceException("Corso di laurea non memorizzato: un corso di laurea deve avere almeno un corso");
 		}
-		Connection connection =this.dataSource.getConnection();
+		Connection connection = this.dataSource.getConnection();
 		try {
-			long id =IdBroker.getId(connection);
-			corsodiLaurea.setCodice(id);
-			String insert = "insert into corsodilaurea(codice, nome, dipartimento) values (?,?,?)";
+			Long id = IdBroker.getId(connection);
+			corsoDiLaurea.setCodice(id); 
+			String insert = "insert into corsodilaurea(codice, nome, dipartimento_codice) values (?,?,?)";
 			PreparedStatement statement = connection.prepareStatement(insert);
-			statement.setLong(1, corsodiLaurea.getCodice());
-			statement.setString(2, corsodiLaurea.getNome());
-			statement.setLong(3, corsodiLaurea.getDipartimento().getCodice());
+			statement.setLong(1, corsoDiLaurea.getCodice());
+			statement.setString(2, corsoDiLaurea.getNome());
+			statement.setLong(3, corsoDiLaurea.getDipartimento().getCodice());
+
 			//connection.setAutoCommit(false);
 			//serve in caso gli studenti non siano stati salvati. Il DAO studente apre e chiude una transazione nuova.
-			//connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);	
+			//connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);			
 			statement.executeUpdate();
-			this.updateCorsi(corsodiLaurea, connection);
+			
+			this.updateCorsi(corsoDiLaurea, connection);
 			//connection.commit();
 		} catch (SQLException e) {
-			if(connection != null) {
+			if (connection != null) {
 				try {
 					connection.rollback();
-				} catch (SQLException excep) {
+				} catch(SQLException excep) {
 					throw new PersistenceException(e.getMessage());
 				}
-			}
-		}
-		finally {
+			} 
+		} finally {
 			try {
 				connection.close();
 			} catch (SQLException e) {
